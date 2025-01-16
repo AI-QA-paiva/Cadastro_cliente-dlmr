@@ -1,0 +1,16 @@
+#version: '3.8'
+#services:
+#  mysql:
+#    image: mysql:latest
+#    container_name: mysql-container
+#    environment:
+#      MYSQL_ROOT_PASSWORD: root
+#      MYSQL_DATABASE: clientes_db
+#      MYSQL_USER: pepipo
+#      MYSQL_PASSWORD: p12345p6
+#    ports:
+#      - "3306:3306"
+#    volumes:
+#      - mysql-data:/var/lib/mysql
+#volumes:
+#  mysql-data:
