@@ -6,22 +6,22 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Length;
 
 public class ClientRequestDTO {
 
-
-    //@NotBlank(message = "Favor informar um nome")
-    //@NotEmpty(message = "O Preenchimento deste campo é Obrigatório")
+    @NotBlank(message = "Favor informar um nome")
+    @NotEmpty(message = "O Preenchimento deste campo é Obrigatório")
     private String name;
 
-   // @NotBlank(message = "É necessário informar um endereço de e-mail")
-    //@Email(message = "E-mail Inválido! Verifique se está correto e sem erros de formatação")
+    @NotBlank(message = "É necessário informar um endereço de e-mail")
+    @Email(message = "E-mail Inválido! Verifique a formatação ou se digitou corretamente")
     private String email;
 
-   // @NotBlank(message = "O Preenchimento deste campo é Obrigatório")
+    @NotBlank(message = "O Preenchimento deste campo é Obrigatório")
     private String document;
 
-   // @NotEmpty(message = "O Preenchimento deste campo é Obrigatório")
+    @NotEmpty(message = "O Preenchimento deste campo é Obrigatório")
     private String phoneNumber;
 
     public ClientRequestDTO() {
