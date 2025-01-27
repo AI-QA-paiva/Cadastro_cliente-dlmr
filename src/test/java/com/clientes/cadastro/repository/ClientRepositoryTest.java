@@ -48,5 +48,16 @@ public class ClientRepositoryTest {
         assertThatThrownBy(() -> clientRepository.save(invalidDataClient)).isInstanceOf(RuntimeException.class);
     }
 
+    @Test
+    public void createClient_WithExistingName_ThrowsException(){
+
+        Client clientInDataSaved = testEntityManager.persistFlushFind(CLIENT);
+        testEntityManager.detach(clientInDataSaved); //para tirar a visibilidade deste objeto encontrado no BD (linha acima), para não interpretar como se fosse um update
+        clientInDataSaved.setId(null); //coloca null para retirar o id e tentar salvar ele novamente, porém o nome nao poderá repetir pois é unico, e retornará erro
+
+        assertThatThrownBy(() -> clientRepository.save(clientInDataSaved)).isInstanceOf(RuntimeException.class);
+
+    }
+
 
 }
