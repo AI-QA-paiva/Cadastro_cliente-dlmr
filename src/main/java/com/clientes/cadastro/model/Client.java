@@ -1,6 +1,7 @@
 package com.clientes.cadastro.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 @Entity
@@ -10,11 +11,20 @@ public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @NotEmpty
+    @Column(nullable = false)
     private String name;
+
+    @NotEmpty
     @Column(unique=true, nullable = false)
     private String email;
+
+    @NotEmpty
     @Column(unique=true, nullable = false)
     private String document;
+
+    @NotEmpty
     @Column(nullable = false)
     private String phoneNumber;
 
@@ -81,6 +91,16 @@ public class Client {
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(obj, this);
+    }
 
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", document='" + document + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                '}';
     }
 }

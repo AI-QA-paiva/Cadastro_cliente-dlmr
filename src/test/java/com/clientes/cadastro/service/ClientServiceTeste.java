@@ -1,8 +1,10 @@
 package com.clientes.cadastro.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 import static com.clientes.cadastro.common.ClientConstants.CLIENT;
+import static com.clientes.cadastro.common.ClientConstants.INVALID_CLIENT;
 
 import com.clientes.cadastro.model.Client;
 import com.clientes.cadastro.repository.ClientRepository;
@@ -28,7 +30,7 @@ public class ClientServiceTeste {
     private ClientRepository clientRepository;
 
     @Test
-    public void createClient_ReturnClient(){
+    public void createClient_WithValidData_ReturnClient(){
 
         //principio dos testes conhecido como AAA
         //Arrange
@@ -37,7 +39,14 @@ public class ClientServiceTeste {
         Client sutClient = clientService.registerClient(CLIENT);
         //resultado
         assertThat(sutClient).isEqualTo(CLIENT);
-
     }
+
+    @Test
+    public void createClient_WithInvalidData_ReturnThrowsException(){
+        when(clientRepository.save(INVALID_CLIENT)).thenThrow(RuntimeException.class);
+
+        assertThatThrownBy(() -> clientService.registerClient(INVALID_CLIENT)).isInstanceOf(RuntimeException.class);
+    }
+
 
 }
