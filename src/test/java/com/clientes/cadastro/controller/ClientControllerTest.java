@@ -2,9 +2,9 @@ package com.clientes.cadastro.controller;
 
 import static com.clientes.cadastro.common.ClientConstants.CLIENT;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -92,22 +93,49 @@ public class ClientControllerTest {
 
     }
 
+    @Test
+    public void getClient_ByExistingName_ReturnsClient() throws Exception {
+        when(clientService.getByName(CLIENT.getName())).thenReturn(Optional.of(CLIENT)); //configurando o mock para o comportamento simulado
+
+        mockMvc
+                .perform(
+                        get("/client/name/" + CLIENT.getName())) //concatena o cliente (CLIENT.getName()) que fica depois do name/
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(CLIENT.getName()))
+                .andExpect(jsonPath("$.id").value(CLIENT.getId()));
+    }
+
+    @Test
+    public void getClient_ByUnexistingName_ReturnsNotFound() throws Exception {
+        mockMvc.perform(get("/client/name/1"))
+                .andExpect(status().isNotFound());
+    }
+
 //    @Test
-//    public void getClient_ByExistingName_ReturnsClient() throws Exception {
-//        when(clientService.getByName(CLIENT.getName())).thenReturn(Optional.of(CLIENT));
+//    public void listPlanets_ReturnsFilteredPlanets() throws Exception {
 //
-//        mockMvc
-//                .perform(
-//                        get("/planets/name/" + PLANET.getName()))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$").value(PLANET));
 //    }
 //
 //    @Test
-//    public void getPlanet_ByUnexistingName_ReturnsNotFound() throws Exception {
-//        mockMvc.perform(get("/planets/name/1"))
-//                .andExpect(status().isNotFound());
+//    public void listPlanets_ReturnsNoPlanets() throws Exception {
+//
 //    }
+
+    @Test
+    public void removeClient_WithExistingId_ReturnsNoContent() throws Exception {
+        mockMvc.perform(delete("/client/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void removeClient_WithUnexistingId_ReturnsNotFound() throws Exception {
+        final Long clientId = 1L;
+
+        doThrow(new EmptyResultDataAccessException(1)).when(clientService).deleteCustomerRecord(clientId);
+
+        mockMvc.perform(delete("/client/" + clientId))
+                .andExpect(status().isNotFound());
+    }
 
 
 }
@@ -115,3 +143,6 @@ public class ClientControllerTest {
 //usar a anotação do spring mvc >> @WebMvcTest >> usaremos para todos os testes na camada controller
 //para testar esse retorno, preciso fazer uma requisião HHTP que sensibiliza a controller >> já envolve o contexto web
 //uma vez inserido, alem de injetar a classe controller, também criará um contexto web proximo do real, simulando o papel do dublê Fake
+
+//mockMvc simulador de requisições HTTP em testes de controladores; 'perform' faz um get no endpoint é mapeado
+//como não ha MockBean que carregue um cliente >> dará com inexistente Not_found 404 >> o que casa com a expectativa andExpect

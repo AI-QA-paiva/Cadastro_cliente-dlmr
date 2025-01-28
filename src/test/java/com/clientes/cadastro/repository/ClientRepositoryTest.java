@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 import java.util.Optional;
 
@@ -78,12 +79,55 @@ public class ClientRepositoryTest {
     }
 
     @Test
-    public void getPlanet_ByUnexistingId_ReturnsEmpty() {
+    public void getClient_ByUnexistingId_ReturnsEmpty() {
         Optional<Client> clientOpt = clientRepository.findById(1L);
 
         assertThat(clientOpt).isEmpty();
-
     }
+
+    @Test
+    public void getClient_ByExistingName_ReturnsClient() {
+        Client client = testEntityManager.persistFlushFind(CLIENT);
+
+        Optional<Client> clientOpt = clientRepository.findByName(client.getName());
+
+        assertThat(clientOpt).isNotEmpty();
+        assertThat(clientOpt.get()).isEqualTo(client);
+    }
+
+    @Test
+    public void getClient_ByUnexistingName_ReturnsNotFound() {
+        Optional<Client> clientOpt = clientRepository.findByName("name");
+
+        assertThat(clientOpt).isEmpty();
+    }
+
+//    @Test
+//    public void listClients_ReturnsFilteredClients() {
+//
+//    }
+
+//    @Test
+//    public void listClients_ReturnsNoClients() {
+//
+//    }
+
+    @Test
+    public void removeClient_WithExistingId_RemovesClientFromDatabase() {
+        Client client = testEntityManager.persistFlushFind(CLIENT);
+
+        clientRepository.deleteById(client.getId());
+
+        Client removedClient = testEntityManager.find(Client.class, client.getId());
+        assertThat(removedClient).isNull();
+    }
+
+    @Test
+    public void removePlanet_WithUnexistingId_ThrowsException() {
+        assertThatThrownBy(() -> clientRepository.deleteById(1L)).isInstanceOf(EmptyResultDataAccessException.class);
+    }
+
+
 
 
 
