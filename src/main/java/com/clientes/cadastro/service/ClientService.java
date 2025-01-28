@@ -26,6 +26,10 @@ public class ClientService {
         return clientRepository.findById(id);
     }
 
+    public Optional<Client> getByName(String name) {
+        return clientRepository.findByName(name);
+    }
+
     public Client registeredClient(Client client) {
         return clientRepository.save(client);
     }
@@ -34,4 +38,10 @@ public class ClientService {
         clientRepository.deleteById(id);
     }
 
+
 }
+
+/* ESTUDAR O CASO: >> com pesquisar por nome que pode me trzer uma lista porque tem várias pessoas com um nome em comum???*/
+//public List<Client> getByName(String name) {
+//    return clientRepository.findByName(name);
+//}

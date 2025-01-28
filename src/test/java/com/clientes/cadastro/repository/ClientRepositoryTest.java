@@ -1,10 +1,13 @@
 package com.clientes.cadastro.repository;
 
 import com.clientes.cadastro.model.Client;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+
+import java.util.Optional;
 
 import static com.clientes.cadastro.common.ClientConstants.CLIENT;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,6 +22,11 @@ public class ClientRepositoryTest {
 
     @Autowired
     private TestEntityManager testEntityManager; //para interagir com o BD e poder consultar os dados que estão la
+
+    @AfterEach
+    public void afterEach(){
+        CLIENT.setId(null);
+    }
 
     @Test
     public void createClient_WithValidData_ReturnClient(){
@@ -58,6 +66,25 @@ public class ClientRepositoryTest {
         assertThatThrownBy(() -> clientRepository.save(clientInDataSaved)).isInstanceOf(RuntimeException.class);
 
     }
+
+    @Test
+    public void getClient_ByExistingId_ReturnsClient() {
+        Client client = testEntityManager.persistFlushFind(CLIENT);
+        Optional<Client> clientOpt = clientRepository.findById(client.getId());
+
+        assertThat(clientOpt).isNotEmpty();
+        assertThat(clientOpt.get()).isEqualTo(client);
+
+    }
+
+    @Test
+    public void getPlanet_ByUnexistingId_ReturnsEmpty() {
+        Optional<Client> clientOpt = clientRepository.findById(1L);
+
+        assertThat(clientOpt).isEmpty();
+
+    }
+
 
 
 }
