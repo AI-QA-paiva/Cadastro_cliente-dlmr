@@ -89,7 +89,8 @@ public class ClientController {
     @DeleteMapping(path = "/client/{id}")
     public ResponseEntity<Void> deleteClient(@PathVariable Long id){
         clientService.deleteCustomerRecord(id);
-        return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
+        return ResponseEntity.noContent().build();
+        //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
 
 
