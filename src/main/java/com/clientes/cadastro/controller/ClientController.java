@@ -92,8 +92,6 @@ public class ClientController {
         return ResponseEntity.noContent().build();
         //return new ResponseEntity<Void>(HttpStatus.NO_CONTENT);
     }
-
-
 }
 
 

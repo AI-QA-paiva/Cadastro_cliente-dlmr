@@ -15,14 +15,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 //@SpringBootTest(classes = ClientRepository.class) //1- no parametro é a classe que queremos carregar nesse teste; caso contrário, vai carregar todas as beans (reduz performance)
-@DataJpaTest
+@DataJpaTest//usa um banco em memória H2 >> com essa anotação não é necessario mais o @SpringBootTest
 public class ClientRepositoryTest {
 
     @Autowired //2- a partir do momento que tenho a @SpringBootTet, consigo informar para o test a qual classe se refere essa injeção
     private ClientRepository clientRepository;
 
     @Autowired
-    private TestEntityManager testEntityManager; //para interagir com o BD e poder consultar os dados que estão la
+    private TestEntityManager testEntityManager; //para interagir com o BD e poder consultar os dados que estão la no BD sem ser via repository
 
     @AfterEach
     public void afterEach(){
@@ -58,7 +58,7 @@ public class ClientRepositoryTest {
     }
 
     @Test
-    public void createClient_WithExistingName_ThrowsException(){
+    public void createClient_WithExistingName_ThrowsException(){//planeta ja existe
 
         Client clientInDataSaved = testEntityManager.persistFlushFind(CLIENT);
         testEntityManager.detach(clientInDataSaved); //para tirar a visibilidade deste objeto encontrado no BD (linha acima), para não interpretar como se fosse um update
@@ -102,15 +102,7 @@ public class ClientRepositoryTest {
         assertThat(clientOpt).isEmpty();
     }
 
-//    @Test
-//    public void listClients_ReturnsFilteredClients() {
-//
-//    }
 
-//    @Test
-//    public void listClients_ReturnsNoClients() {
-//
-//    }
 
     @Test
     public void removeClient_WithExistingId_RemovesClientFromDatabase() {
@@ -123,12 +115,24 @@ public class ClientRepositoryTest {
     }
 
     @Test
-    public void removePlanet_WithUnexistingId_ThrowsException() {
-        assertThatThrownBy(() -> clientRepository.deleteById(1L)).isInstanceOf(EmptyResultDataAccessException.class);
+    public void removeClient_WithUnexistingId_ThrowsException() {
+
+        Optional<Client> clientOpt = clientRepository.findById(1L);
+        assertThat(clientOpt).isEmpty();
+
+        assertThatThrownBy(() -> clientRepository.deleteById(1L))
+                .isInstanceOf(EmptyResultDataAccessException.class);
     }
 
 
-
-
-
 }
+
+//    @Test
+//    public void listClients_ReturnsFilteredClients() {
+//
+//    }
+
+//    @Test
+//    public void listClients_ReturnsNoClients() {
+//
+//    }

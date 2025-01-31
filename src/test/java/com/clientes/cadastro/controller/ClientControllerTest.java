@@ -47,7 +47,7 @@ public class ClientControllerTest {
     }
 
     @Test
-    public void creatClient_WithInvalidData_ReturnsBadRequest() throws Exception {
+    public void createClient_WithInvalidData_ReturnsBadRequest() throws Exception {
 
         //simulando dados invalidos
         Client empytClient = new Client();
@@ -112,12 +112,12 @@ public class ClientControllerTest {
     }
 
 //    @Test
-//    public void listPlanets_ReturnsFilteredPlanets() throws Exception {
+//    public void listClients_ReturnsFilteredClients() throws Exception {
 //
 //    }
 //
 //    @Test
-//    public void listPlanets_ReturnsNoPlanets() throws Exception {
+//    public void listClients_ReturnsNoClients() throws Exception {
 //
 //    }
 
@@ -133,7 +133,7 @@ public class ClientControllerTest {
 
         doThrow(new EmptyResultDataAccessException(1)).when(clientService).deleteCustomerRecord(clientId);
 
-        mockMvc.perform(delete("/client/" + clientId))
+        mockMvc.perform(delete("/client" + clientId))
                 .andExpect(status().isNotFound());
     }
 
