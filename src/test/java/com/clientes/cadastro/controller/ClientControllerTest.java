@@ -37,107 +37,100 @@ public class ClientControllerTest {
     private ClientService clientService;
 
     @Test
-    public void createClient_WithValidDate_ReturnsCreated() throws Exception {
-
+    public void createClient_WithValidDate_ReturnsCreated() throws Exception {//TODO em java n se usa snake case para nomes de metodos
+        // TODO: Renomear o método para "createClientWithValidDataReturnsCreated" (correção de typo em "Date" para "Data").
         when(clientService.registerClient(CLIENT)).thenReturn(CLIENT);
 
-        mockMvc.perform(post("/client").content(objectMapper.writeValueAsString(CLIENT)).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post("/client")
+                        .content(objectMapper.writeValueAsString(CLIENT))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$").value(CLIENT));//onde pega o conteudo trafegado com o string e transformar em objeto >> assim vou conseguir validar com o CLIENT
+                .andExpect(jsonPath("$").value(CLIENT)); // TODO: Validar campos específicos do CLIENT em vez de validar o objeto inteiro para maior precisão.
     }
 
     @Test
-    public void createClient_WithInvalidData_ReturnsBadRequest() throws Exception {
+    public void createClient_WithInvalidData_ReturnsBadRequest() throws Exception {//TODO em java n se usa snake case para nomes de metodos
+        // TODO: Renomear o método para "createClientWithInvalidDataReturnsUnprocessableEntity" para refletir o status correto (422).
+        Client emptyClient = new Client();
+        Client invalidDataClient = new Client("", "", "", "");
 
-        //simulando dados invalidos
-        Client empytClient = new Client();
-        Client invalidDataClient = new Client("","","","");
-
-        mockMvc.perform(post("/client").content(objectMapper.writeValueAsString(empytClient))
+        mockMvc.perform(post("/client")
+                        .content(objectMapper.writeValueAsString(emptyClient))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnprocessableEntity());
 
-        mockMvc.perform(post("/client").content(objectMapper.writeValueAsString(invalidDataClient))
+        mockMvc.perform(post("/client")
+                        .content(objectMapper.writeValueAsString(invalidDataClient))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnprocessableEntity());
     }
 
     @Test
-    public void createClient_WithExistingName_ReturnsConflict() throws Exception {
+    public void createClient_WithExistingName_ReturnsConflict() throws Exception {//TODO em java n se usa snake case para nomes de metodos
+        // TODO: Adicionar validação para garantir que o CLIENT simulado tenha um nome único antes de lançar a exceção.
+        when(clientService.registerClient(any())).thenThrow(DataIntegrityViolationException.class);
 
-        //quando tentar um clinet que ja existe >> lança uma exceção e cai no tratamento no controller
-        //inserir um dubê stub
-        when(clientService.registerClient(any())).thenThrow(DataIntegrityViolationException.class); //any para indicar que qualquer input passado, não importa o que, sempre lançará uma exceção
-
-        mockMvc.perform(post("/client").content(objectMapper.writeValueAsString(CLIENT))
+        mockMvc.perform(post("/client")
+                        .content(objectMapper.writeValueAsString(CLIENT))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isConflict());
-
     }
 
     @Test
-    public void getClent_ByExistingId_ReturnsClient() throws Exception {
+    public void getClient_ByExistingId_ReturnsClient() throws Exception {//TODO em java n se usa snake case para nomes de metodos
         when(clientService.getOnlyOneClient(1L)).thenReturn(Optional.of(CLIENT));
 
-        mockMvc
-                .perform(
-                        get("/client/1"))
+        mockMvc.perform(get("/client/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(CLIENT));
+                .andExpect(jsonPath("$").value(CLIENT)); // TODO: Validar campos específicos do CLIENT em vez de validar o objeto inteiro.
     }
 
     @Test
-    public void getClient_ByUnexistingId_ReturnsNotFound() throws Exception {
+    public void getClient_ByUnexistingId_ReturnsNotFound() throws Exception {//TODO em java n se usa snake case para nomes de metodos
         mockMvc.perform(get("/client/1"))
                 .andExpect(status().isNotFound());
-
     }
 
     @Test
-    public void getClient_ByExistingName_ReturnsClient() throws Exception {
-        when(clientService.getByName(CLIENT.getName())).thenReturn(Optional.of(CLIENT)); //configurando o mock para o comportamento simulado
+    public void getClient_ByExistingName_ReturnsClient() throws Exception {//TODO em java n se usa snake case para nomes de metodos
+        when(clientService.getByName(CLIENT.getName())).thenReturn(Optional.of(CLIENT));
 
-        mockMvc
-                .perform(
-                        get("/client/name/" + CLIENT.getName())) //concatena o cliente (CLIENT.getName()) que fica depois do name/
+        mockMvc.perform(get("/client/name/" + CLIENT.getName()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(CLIENT.getName()))
                 .andExpect(jsonPath("$.id").value(CLIENT.getId()));
     }
 
     @Test
-    public void getClient_ByUnexistingName_ReturnsNotFound() throws Exception {
+    public void getClient_ByUnexistingName_ReturnsNotFound() throws Exception {//TODO em java n se usa snake case para nomes de metodos
         mockMvc.perform(get("/client/name/1"))
                 .andExpect(status().isNotFound());
     }
 
-//    @Test
-//    public void listClients_ReturnsFilteredClients() throws Exception {
-//
-//    }
-//
-//    @Test
-//    public void listClients_ReturnsNoClients() throws Exception {
-//
-//    }
-
     @Test
-    public void removeClient_WithExistingId_ReturnsNoContent() throws Exception {
+    public void removeClient_WithExistingId_ReturnsNoContent() throws Exception {//TODO em java n se usa snake case para nomes de metodos
         mockMvc.perform(delete("/client/1"))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    public void removeClient_WithUnexistingId_ReturnsNotFound() throws Exception {
+    public void removeClient_WithUnexistingId_ReturnsNotFound() throws Exception { //TODO em java n se usa snake case para nomes de metodos
         final Long clientId = 1L;
 
         doThrow(new EmptyResultDataAccessException(1)).when(clientService).deleteCustomerRecord(clientId);
 
-        mockMvc.perform(delete("/client" + clientId))
+        mockMvc.perform(delete("/client/" + clientId)) // TODO: Corrigir a URL concatenada para "/client/" + clientId (adicionar barra antes do ID).
                 .andExpect(status().isNotFound());
     }
 
+    // TODO: Implementar os testes comentados para listar clientes, incluindo cenários com e sem resultados.
+    // @Test
+    // public void listClientsReturnsFilteredClients() throws Exception {
+    // }
 
+    // @Test
+    // public void listClientsReturnsNoClients() throws Exception {
+    // }
 }
 
 //usar a anotação do spring mvc >> @WebMvcTest >> usaremos para todos os testes na camada controller

@@ -1,11 +1,11 @@
 package com.clientes.cadastro.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.*; // TODO remover wildcard
 import jakarta.validation.constraints.NotEmpty;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 @Entity
-//@Data
+//@Data // TODO se n usar remova e n deixe comentado, isso polui o codigo
 public class Client {
 
     @Id
@@ -17,17 +17,18 @@ public class Client {
     private String name;
 
     @NotEmpty
-    @Column(unique=true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String email;
 
     @NotEmpty
-    @Column(unique=true, nullable = false)
+    @Column(unique = true, nullable = false)
     private String document;
 
     @NotEmpty
     @Column(nullable = false)
     private String phoneNumber;
 
+    // TODO: Considere usar a anotação @Builder (Lombok) para facilitar a criação de objetos Client, especialmente em testes ou cenários complexos.
     public Client() {
     }
 
@@ -39,7 +40,7 @@ public class Client {
         this.phoneNumber = phoneNumber;
     }
 
-    //para usar no ClientConstants da pasta common sem pegar necessitar pegar o atributo id
+    // TODO: Avalie se o construtor sem o atributo `id` é realmente necessário. Caso seja, documente o motivo para evitar confusão.
     public Client(String name, String email, String document, String phoneNumber) {
         this.name = name;
         this.email = email;
@@ -52,6 +53,7 @@ public class Client {
     }
 
     public void setId(Long id) {
+        // TODO: Considere remover o setter de `id` para garantir que ele seja gerenciado apenas pelo JPA, evitando inconsistências.
         this.id = id;
     }
 
@@ -60,6 +62,7 @@ public class Client {
     }
 
     public void setName(String name) {
+        // TODO: Adicione validação no setter para evitar valores nulos ou inválidos, caso necessário.
         this.name = name;
     }
 
@@ -68,6 +71,7 @@ public class Client {
     }
 
     public void setEmail(String email) {
+        // TODO: Adicione validação no setter para garantir que o email seja válido (ex.: regex para formato de email).
         this.email = email;
     }
 
@@ -76,6 +80,7 @@ public class Client {
     }
 
     public void setDocument(String document) {
+        // TODO: Adicione validação no setter para garantir que o documento seja válido (ex.: CPF ou CNPJ).
         this.document = document;
     }
 
@@ -84,15 +89,17 @@ public class Client {
     }
 
     public void setPhoneNumber(String phoneNumber) {
+        // TODO: Adicione validação no setter para garantir que o número de telefone seja válido (ex.: regex para formato de telefone).
         this.phoneNumber = phoneNumber;
     }
 
-    //para teste de igualdade >> equals da biblioteca commons
+    // TODO: Considere usar a anotação @EqualsAndHashCode (Lombok) para simplificar a implementação do método equals.
     @Override
     public boolean equals(Object obj) {
         return EqualsBuilder.reflectionEquals(obj, this);
     }
 
+    // TODO: Considere usar a anotação @ToString (Lombok) para simplificar a implementação do método toString.
     @Override
     public String toString() {
         return "Client{" +

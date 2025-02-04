@@ -14,30 +14,29 @@ import static com.clientes.cadastro.common.ClientConstants.CLIENT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-//@SpringBootTest(classes = ClientRepository.class) //1- no parametro é a classe que queremos carregar nesse teste; caso contrário, vai carregar todas as beans (reduz performance)
-@DataJpaTest//usa um banco em memória H2 >> com essa anotação não é necessario mais o @SpringBootTest
+@DataJpaTest // usa um banco em memória H2 >> com essa anotação não é necessário mais o @SpringBootTest
 public class ClientRepositoryTest {
 
-    @Autowired //2- a partir do momento que tenho a @SpringBootTet, consigo informar para o test a qual classe se refere essa injeção
+    @Autowired
     private ClientRepository clientRepository;
 
     @Autowired
-    private TestEntityManager testEntityManager; //para interagir com o BD e poder consultar os dados que estão la no BD sem ser via repository
+    private TestEntityManager testEntityManager; // para interagir com o BD e consultar os dados diretamente
 
     @AfterEach
-    public void afterEach(){
+    public void afterEach() {
         CLIENT.setId(null);
     }
 
     @Test
-    public void createClient_WithValidData_ReturnClient(){
-
+    public void createClient_WithValidData_ReturnClient() {
         Client client = clientRepository.save(CLIENT);
 
-        //alvo do nosso teste
-        Client sutSearchClient = testEntityManager.find(Client.class, client.getId());
+        // TODO: Evitar o uso de System.out.println, utilize um logger apropriado para depuração.
+        System.out.println(client);
 
-        System.out.println(sutSearchClient);
+        // TODO: Renomear sutSearchClient para algo mais significativo, como retrievedClient.
+        Client sutSearchClient = testEntityManager.find(Client.class, client.getId());
 
         assertThat(sutSearchClient).isNotNull();
         assertThat(sutSearchClient.getName()).isEqualTo(CLIENT.getName());
@@ -47,25 +46,26 @@ public class ClientRepositoryTest {
     }
 
     @Test
-    public void createClient_WithInvalidData_ReturnThrowsException(){
-
-        //simulando dados invalidos
+    public void createClient_WithInvalidData_ReturnThrowsException() {
+        // TODO: Renomear empytClient para emptyClient (correção de typo).
         Client empytClient = new Client();
-        Client invalidDataClient = new Client("","","","");
+        Client invalidDataClient = new Client("", "", "", "");
 
+        // TODO: Validar se RuntimeException é a exceção correta a ser esperada. Considere criar exceções customizadas para maior clareza.
         assertThatThrownBy(() -> clientRepository.save(empytClient)).isInstanceOf(RuntimeException.class);
         assertThatThrownBy(() -> clientRepository.save(invalidDataClient)).isInstanceOf(RuntimeException.class);
     }
 
     @Test
-    public void createClient_WithExistingName_ThrowsException(){//planeta ja existe
-
+    public void createClient_WithExistingName_ThrowsException() {
         Client clientInDataSaved = testEntityManager.persistFlushFind(CLIENT);
-        testEntityManager.detach(clientInDataSaved); //para tirar a visibilidade deste objeto encontrado no BD (linha acima), para não interpretar como se fosse um update
-        clientInDataSaved.setId(null); //coloca null para retirar o id e tentar salvar ele novamente, porém o nome nao poderá repetir pois é unico, e retornará erro
+        testEntityManager.detach(clientInDataSaved);
 
+        // TODO: Evitar manipulação direta de IDs. Considere criar um método utilitário para clonar objetos sem ID.
+        clientInDataSaved.setId(null);
+
+        // TODO: Validar se RuntimeException é a exceção correta a ser esperada.
         assertThatThrownBy(() -> clientRepository.save(clientInDataSaved)).isInstanceOf(RuntimeException.class);
-
     }
 
     @Test
@@ -75,7 +75,6 @@ public class ClientRepositoryTest {
 
         assertThat(clientOpt).isNotEmpty();
         assertThat(clientOpt.get()).isEqualTo(client);
-
     }
 
     @Test
@@ -102,21 +101,19 @@ public class ClientRepositoryTest {
         assertThat(clientOpt).isEmpty();
     }
 
-
-
     @Test
     public void removeClient_WithExistingId_RemovesClientFromDatabase() {
         Client client = testEntityManager.persistFlushFind(CLIENT);
 
         clientRepository.deleteById(client.getId());
 
+        // TODO: Renomear removedClient para algo mais significativo, como deletedClient.
         Client removedClient = testEntityManager.find(Client.class, client.getId());
         assertThat(removedClient).isNull();
     }
 
     @Test
     public void removeClient_WithUnexistingId_ThrowsException() {
-
         Optional<Client> clientOpt = clientRepository.findById(1L);
         assertThat(clientOpt).isEmpty();
 
@@ -124,15 +121,6 @@ public class ClientRepositoryTest {
                 .isInstanceOf(EmptyResultDataAccessException.class);
     }
 
-
+    // TODO: Implementar os testes listClients_ReturnsFilteredClients e listClients_ReturnsNoClients.
+    // Considere criar métodos utilitários para configurar os dados de teste e evitar duplicação de código.
 }
-
-//    @Test
-//    public void listClients_ReturnsFilteredClients() {
-//
-//    }
-
-//    @Test
-//    public void listClients_ReturnsNoClients() {
-//
-//    }
