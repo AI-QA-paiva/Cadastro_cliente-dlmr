@@ -1,45 +1,71 @@
 package com.clientes.cadastro.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.Column;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Entity;
+
+
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Builder;
+import lombok.ToString;
+import lombok.EqualsAndHashCode;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.br.CPF;
 
 @Entity
-//@Data
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
+@ToString
+@EqualsAndHashCode
 public class Client {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private Long id;
 
-    @NotEmpty
+    @NotBlank
     @Column(nullable = false, unique = true)
+    @Length(min = 5, message = "name has fewer characters than allowed")
+    @Length(max = 80, message = "name has more characters than allowed")
+    @EqualsAndHashCode.Include
     private String name;
 
-    @NotEmpty
+    @NotEmpty(message = "this field cannot be null or empty")
     @Column(unique=true, nullable = false)
+    @Email(message = "email in invalid format")
+    @EqualsAndHashCode.Include
     private String email;
 
-    @NotEmpty
+    @NotEmpty(message = "this field cannot be null or empty")
     @Column(unique=true, nullable = false)
+    @CPF(message = "número do registro de contribuinte individual brasileiro (CPF) inválido")
+    @Pattern(regexp = "\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}", message = "CPF deve estar no formato 000.000.000-00")
+    @EqualsAndHashCode.Include
     private String document;
 
-    @NotEmpty
+    @NotEmpty(message = "this field cannot be null or empty")
     @Column(nullable = false)
+    @Pattern(regexp = "\\(\\d{2}\\) \\d{4,5}-\\d{4}", message = "Telefone deve estar no formato (00) 0000-0000 ou (00) 00000-0000")
+    @EqualsAndHashCode.Include
     private String phoneNumber;
 
-    public Client() {
-    }
-
-    public Client(Long id, String name, String email, String document, String phoneNumber) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.document = document;
-        this.phoneNumber = phoneNumber;
-    }
-
-    //para usar no ClientConstants da pasta common sem pegar necessitar pegar o atributo id
+    //para usar nos testes na classe  ClientConstants pasta common >> nao terei Id gerado então necessitar pegar sem o atributo id
     public Client(String name, String email, String document, String phoneNumber) {
         this.name = name;
         this.email = email;
@@ -47,60 +73,4 @@ public class Client {
         this.phoneNumber = phoneNumber;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getDocument() {
-        return document;
-    }
-
-    public void setDocument(String document) {
-        this.document = document;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    //para teste de igualdade >> equals da biblioteca commons
-    @Override
-    public boolean equals(Object obj) {
-        return EqualsBuilder.reflectionEquals(obj, this);
-    }
-
-    @Override
-    public String toString() {
-        return "Client{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", document='" + document + '\'' +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                '}';
-    }
 }

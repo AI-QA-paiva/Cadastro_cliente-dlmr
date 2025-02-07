@@ -44,11 +44,7 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.postgresql</groupId>-->
-<!--			<artifactId>postgresql</artifactId>-->
-<!--			<scope>runtime</scope>-->
-<!--		</dependency>-->
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -87,8 +83,7 @@
 			<version>2.8.1</version>
 		</dependency>
 
-<!--		dependencias de teste-->
-<!--		listados todos abaixoque usarei em se tratando de testes-->
+<!--		dependencias de teste--> <!--		listados todos abaixoque usarei em se tratando de testes-->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

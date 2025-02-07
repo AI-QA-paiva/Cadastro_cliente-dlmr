@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.Map;
 import java.util.Objects;
 
 @ControllerAdvice
@@ -28,9 +29,23 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
 
     }
 
-    @ExceptionHandler(EmptyResultDataAccessException.class)
-    private ResponseEntity<Object> handleBadRequest(EmptyResultDataAccessException exception){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+//    @ExceptionHandler(EmptyResultDataAccessException.class)
+//    private ResponseEntity<Object> handleBadRequest(EmptyResultDataAccessException exception){
+//        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exception.getMessage());
+//    }
+
+    @ExceptionHandler(BadRequest.class)
+    private ResponseEntity<Object> handleBadRequest(BadRequest exception) {
+        // Retorna uma mensagem amigável e estruturada
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                Map.of(
+                        "timestamp", java.time.LocalDateTime.now(),
+                        "status", HttpStatus.BAD_REQUEST.value(),
+                        "error", "Bad Request",
+                        "message", exception.getMessage(),
+                        "path", "/client/{id}" // Você pode capturar dinamicamente o path se necessário
+                )
+        );
     }
 
 }

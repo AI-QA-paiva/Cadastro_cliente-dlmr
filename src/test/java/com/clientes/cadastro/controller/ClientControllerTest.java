@@ -1,6 +1,8 @@
 package com.clientes.cadastro.controller;
 
 import static com.clientes.cadastro.common.ClientConstants.CLIENT;
+import static com.clientes.cadastro.common.ClientConstants.CLIENT_REQUEST_DTO;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -8,9 +10,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
+import com.clientes.cadastro.common.ClientConstants;
+import com.clientes.cadastro.dto.ClientRequestDTO;
 import com.clientes.cadastro.model.Client;
 import com.clientes.cadastro.service.ClientService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +24,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
-import java.util.regex.Matcher;
 
-@WebMvcTest(ClientController.class) //aqui indicamos que não é para subir todos os controllers, somente esse indicado
+@WebMvcTest(ClientController.class)
 public class ClientControllerTest {
 
     @Autowired
@@ -37,23 +40,29 @@ public class ClientControllerTest {
     private ClientService clientService;
 
     @Test
-    public void createClient_WithValidDate_ReturnsCreated() throws Exception {
+    public void createClientWithValidDate() throws Exception {
 
-        when(clientService.registerClient(CLIENT)).thenReturn(CLIENT);
+        ClientRequestDTO clientRequestDTO = ClientConstants.CLIENT_REQUEST_DTO;
+        when(clientService.registerClient(any(Client.class))).thenReturn(CLIENT);
 
-        mockMvc.perform(post("/client").content(objectMapper.writeValueAsString(CLIENT)).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(post("/client")
+                        .content(objectMapper.writeValueAsString(clientRequestDTO))
+                        .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$").value(CLIENT));//onde pega o conteudo trafegado com o string e transformar em objeto >> assim vou conseguir validar com o CLIENT
+                .andExpect(jsonPath("$.name").value(CLIENT.getName()))
+                .andExpect(jsonPath("$.email").value(CLIENT.getEmail()))
+                .andExpect(jsonPath("$.documentSsr").value(CLIENT.getDocument())) // Alterado de $.cpf para $.documentSsr
+                .andExpect(jsonPath("$.phoneNumber").value(CLIENT.getPhoneNumber()));
     }
 
     @Test
-    public void createClient_WithInvalidData_ReturnsBadRequest() throws Exception {
+    public void createClientWithInvalidDataBadRequest() throws Exception {
 
         //simulando dados invalidos
-        Client empytClient = new Client();
+        Client emptyClient = new Client();
         Client invalidDataClient = new Client("","","","");
 
-        mockMvc.perform(post("/client").content(objectMapper.writeValueAsString(empytClient))
+        mockMvc.perform(post("/client").content(objectMapper.writeValueAsString(emptyClient))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isUnprocessableEntity());
 
@@ -63,11 +72,9 @@ public class ClientControllerTest {
     }
 
     @Test
-    public void createClient_WithExistingName_ReturnsConflict() throws Exception {
+    public void createClientWithExistingNameReturnsConflict() throws Exception {
 
-        //quando tentar um clinet que ja existe >> lança uma exceção e cai no tratamento no controller
-        //inserir um dubê stub
-        when(clientService.registerClient(any())).thenThrow(DataIntegrityViolationException.class); //any para indicar que qualquer input passado, não importa o que, sempre lançará uma exceção
+        when(clientService.registerClient(any())).thenThrow(DataIntegrityViolationException.class);
 
         mockMvc.perform(post("/client").content(objectMapper.writeValueAsString(CLIENT))
                         .contentType(MediaType.APPLICATION_JSON))
@@ -76,59 +83,82 @@ public class ClientControllerTest {
     }
 
     @Test
-    public void getClent_ByExistingId_ReturnsClient() throws Exception {
+    public void getClentByExistingId() throws Exception {
         when(clientService.getOnlyOneClient(1L)).thenReturn(Optional.of(CLIENT));
 
         mockMvc
-                .perform(
-                        get("/client/1"))
+                .perform(get("/client/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$").value(CLIENT));
+                .andExpect(jsonPath("$.id").value(CLIENT.getId())) // Verifica o ID
+                .andExpect(jsonPath("$.name").value(CLIENT.getName())) // Verifica o nome
+                .andExpect(jsonPath("$.email").value(CLIENT.getEmail())) // Verifica o email
+                .andExpect(jsonPath("$.documentSsr").value(CLIENT.getDocument())) // Verifica o documento
+                .andExpect(jsonPath("$.phoneNumber").value(CLIENT.getPhoneNumber()));
     }
 
     @Test
-    public void getClient_ByUnexistingId_ReturnsNotFound() throws Exception {
+    public void getClientByUnexistingIdNotFound() throws Exception {
         mockMvc.perform(get("/client/1"))
                 .andExpect(status().isNotFound());
 
     }
 
     @Test
-    public void getClient_ByExistingName_ReturnsClient() throws Exception {
-        when(clientService.getByName(CLIENT.getName())).thenReturn(Optional.of(CLIENT)); //configurando o mock para o comportamento simulado
+    public void getClientByExistingName() throws Exception {
+
+        //List<Client> clientsList = List.of(CLIENT)
+        when(clientService.searchByNameParts(CLIENT.getName())).thenReturn(List.of(CLIENT));
 
         mockMvc
                 .perform(
-                        get("/client/name/" + CLIENT.getName())) //concatena o cliente (CLIENT.getName()) que fica depois do name/
+                        get("/client/listsearch/" + CLIENT.getName()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value(CLIENT.getName()))
-                .andExpect(jsonPath("$.id").value(CLIENT.getId()));
+                .andExpect(jsonPath("$[0].name").value(CLIENT.getName()))
+                .andExpect(jsonPath("$[0].id").value(CLIENT.getId()));
     }
 
     @Test
-    public void getClient_ByUnexistingName_ReturnsNotFound() throws Exception {
-        mockMvc.perform(get("/client/name/1"))
+    public void getClientByUnexistingNameNotFound() throws Exception {
+
+        mockMvc.perform(get("/client/search/1"))
                 .andExpect(status().isNotFound());
     }
 
-//    @Test
-//    public void listClients_ReturnsFilteredClients() throws Exception {
-//
-//    }
-//
-//    @Test
-//    public void listClients_ReturnsNoClients() throws Exception {
-//
-//    }
+    @Test
+    public void listClientsReturnsFilteredClients() throws Exception {
+
+
+        List<Client> clients = List.of(CLIENT);
+
+        when(clientService.searchForClients()).thenReturn(clients);
+
+        mockMvc.perform(get("/clients"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(clients.size()))
+                .andExpect(jsonPath("$[0].name").value(CLIENT.getName()))
+                .andExpect(jsonPath("$[0].email").value(CLIENT.getEmail()));
+
+    }
 
     @Test
-    public void removeClient_WithExistingId_ReturnsNoContent() throws Exception {
+    public void listClientsReturnsNoClients() throws Exception {
+
+        when(clientService.searchForClients()).thenReturn(List.of());
+
+        mockMvc.perform(get("/clients"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(0));
+
+    }
+
+    @Test
+    public void removeClientWithExistingIdReturnsNoContent() throws Exception {
         mockMvc.perform(delete("/client/1"))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    public void removeClient_WithUnexistingId_ReturnsNotFound() throws Exception {
+    public void removeClientWithUnexistingIdReturnsNotFound() throws Exception {
         final Long clientId = 1L;
 
         doThrow(new EmptyResultDataAccessException(1)).when(clientService).deleteCustomerRecord(clientId);
@@ -137,12 +167,4 @@ public class ClientControllerTest {
                 .andExpect(status().isNotFound());
     }
 
-
 }
-
-//usar a anotação do spring mvc >> @WebMvcTest >> usaremos para todos os testes na camada controller
-//para testar esse retorno, preciso fazer uma requisião HHTP que sensibiliza a controller >> já envolve o contexto web
-//uma vez inserido, alem de injetar a classe controller, também criará um contexto web proximo do real, simulando o papel do dublê Fake
-
-//mockMvc simulador de requisições HTTP em testes de controladores; 'perform' faz um get no endpoint é mapeado
-//como não ha MockBean que carregue um cliente >> dará com inexistente Not_found 404 >> o que casa com a expectativa andExpect

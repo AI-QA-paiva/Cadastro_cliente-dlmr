@@ -1,19 +1,16 @@
 package com.clientes.cadastro.dto;
 
-import com.clientes.cadastro.model.Client;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClientRequestDTO {
+public class ClientUpdateDTO {
 
     @NotBlank(message = "Favor informar um nome")
     @NotEmpty(message = "O Preenchimento deste campo é Obrigatório")
@@ -28,18 +25,5 @@ public class ClientRequestDTO {
 
     @NotEmpty(message = "O Preenchimento deste campo é Obrigatório")
     private String phoneNumber;
-
-
-    // conversor
-
-    public Client convertToEntity(ClientRequestDTO clientRequestDTO){
-        return new Client(
-                null,
-                name,
-                email,
-                document,
-                phoneNumber
-        );
-    }
 
 }
